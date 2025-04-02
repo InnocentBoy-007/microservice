@@ -1,7 +1,9 @@
 import express from 'express';
 import { randomBytes } from 'crypto';
+import cors from 'cors'
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 const commentsByPostId = {};
@@ -12,22 +14,22 @@ app.post('/post/:id/comment', (req, res) => {
     const { content } = req.body;
 
     const comments = commentsByPostId[req.params.id] || [];
-    comments.push({id: commentId, content});
+    const newComment = { id: commentId, content }; // ✅ Fix: Use 'id' instead of 'commentId'
+    comments.push(newComment);
 
     commentsByPostId[req.params.id] = comments;
 
     console.log("Successfully posted a comment!");
-    
 
-    res.send(commentsByPostId);
+    res.send(newComment); // ✅ Fix: Send only the new comment
 });
+
 
 // get method
 app.get('/post/:id/comment', (req, res) => {
-    const comments = commentsByPostId[req.params.id] || [];
     console.log("Successfully fetched all comments!");
 
-    res.send(commentsByPostId);
+    res.send(commentsByPostId[req.params.id] || []);
 });
 
 app.get('/', (req, res) => {
