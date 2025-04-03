@@ -9,7 +9,7 @@ app.use(express.json());
 const commentsByPostId = {};
 
 // post method
-app.post('/post/:id/comment', (req, res) => {
+app.post('/post/:id/comment', async (req, res) => {
     const commentId = randomBytes(4).toString('hex');
     const { content } = req.body;
 
@@ -21,7 +21,19 @@ app.post('/post/:id/comment', (req, res) => {
 
     console.log("Successfully posted a comment!");
 
+    await fetch('http://localhost:9005/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'CommentCreated', id: commentId, content, postId: req.params.id }),
+    });
+    console.log("Event triggered by comment!");
+
     res.send(newComment); // ✅ Fix: Send only the new comment
+});
+
+// receives event from event-bus
+app.post('/events', (req, res) => {
+    console.log("Event received: ", req.body.event);
 });
 
 
