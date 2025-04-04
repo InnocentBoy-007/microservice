@@ -9,6 +9,7 @@ app.use(express.json());
 // acts as a database
 const posts = {};
 
+// global error handler
 app.use((err, req, res, next) => {
     console.log(err);
 })
@@ -28,7 +29,7 @@ app.post('/posts', async (req, res) => {
     });
     console.log("Event is sent to event-bus!");
 
-    res.send({ posts });
+    res.send({ post: posts[postId] }); // response only the created post and not all the posts
 });
 
 // endpoint to receive event from event-bus

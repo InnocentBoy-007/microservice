@@ -7,34 +7,28 @@ app.use(express.json());
 
 // http://localhost:9005/events
 app.post('/events', (req, res) => {
-    const { postId, title } = req.body;
-    const event = { postId, title };
+    const event = req.body;
 
+    // emits events to this specific endpoint (posts server)
     fetch('http://localhost:9000/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ event })
     });
 
-
-
+    // emits events to this specific endpoint (comments server)
     fetch('http://localhost:9001/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ event })
     });
 
-
-    // try {
-    //     fetch('http://localhost:9002/events', {
-    //         method: 'POST',
-    //         headers: { 'Content-Type': 'application/json' },
-    //         body: JSON.stringify({ event })
-    //     });
-    // } catch (error) {
-    //     console.log(error)
-    // }
-
+    // emits events to this specifi endpoint (query server)
+    fetch('http://localhost:9002/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event })
+    });
 
     res.send({ status: 'Ok' });
 });

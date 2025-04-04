@@ -1,0 +1,13 @@
+{
+  "name": "query",
+  "version": "1.0.0",
+  "description": "This query file hadles the data from other services.",
+  "main": "query.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "Mechanshil",
+  "license": "ISC"
+}

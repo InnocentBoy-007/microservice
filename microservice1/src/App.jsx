@@ -51,9 +51,9 @@ function App() {
       setTitle(""); // ✅ Clear input field
 
       const newPost = await response.json();
-      console.log("New Post Created:", newPost);
+      console.log("New Post Created:", newPost.post);
 
-      setPost((prevPosts) => [...prevPosts, newPost]); // ✅ Append new post to state
+      setPost((prevPosts) => [...prevPosts, newPost.post]); // ✅ Append new post to state
     } catch (error) {
       console.error("Error creating post:", error);
     } finally {
@@ -68,7 +68,7 @@ function App() {
       const response = await fetch(`http://localhost:9001/post/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: commentInputs[postId] }),
+        body: JSON.stringify({ content: commentInputs[postId], postId }),
       });
 
       if (!response.ok) {

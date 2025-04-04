@@ -12,6 +12,8 @@ const commentsByPostId = {};
 app.post('/post/:id/comment', async (req, res) => {
     const commentId = randomBytes(4).toString('hex');
     const { content } = req.body;
+    console.log("Content of comment-->", req.body);
+    
 
     const comments = commentsByPostId[req.params.id] || [];
     const newComment = { id: commentId, content }; // ✅ Fix: Use 'id' instead of 'commentId'
@@ -21,12 +23,13 @@ app.post('/post/:id/comment', async (req, res) => {
 
     console.log("Successfully posted a comment!");
 
+    // an event is sent to event-bus
     await fetch('http://localhost:9005/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'CommentCreated', id: commentId, content, postId: req.params.id }),
     });
-    console.log("Event triggered by comment!");
+    console.log("Event triggered by comment! The postId--->", req.params.id);
 
     res.send(newComment); // ✅ Fix: Send only the new comment
 });
@@ -37,15 +40,11 @@ app.post('/events', (req, res) => {
 });
 
 
-// get method
+// business logic route with GET method
 app.get('/post/:id/comment', (req, res) => {
     console.log("Successfully fetched all comments!");
 
     res.send(commentsByPostId[req.params.id] || []);
-});
-
-app.get('/', (req, res) => {
-    res.send("welcome to comments server!");
 });
 
 app.listen(9001, () => {
