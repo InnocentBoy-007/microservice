@@ -1,0 +1,13 @@
+{
+  "name": "moderation",
+  "version": "1.0.0",
+  "description": "This service moderates/filters the incoming comments (eventName:CommentCreated)",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "Mechanshil",
+  "license": "ISC"
+}

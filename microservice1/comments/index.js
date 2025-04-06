@@ -6,6 +6,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// global error handler
+app.use((err, req, res, next) => {
+    console.log(err);
+});
+
 const commentsByPostId = {};
 
 // post method
@@ -13,7 +18,7 @@ app.post('/post/:id/comment', async (req, res) => {
     const commentId = randomBytes(4).toString('hex');
     const { content } = req.body;
     console.log("Content of comment-->", req.body);
-    
+    console.log("PostId--->", req.params.id);
 
     const comments = commentsByPostId[req.params.id] || [];
     const newComment = { id: commentId, content }; // ✅ Fix: Use 'id' instead of 'commentId'
@@ -27,16 +32,32 @@ app.post('/post/:id/comment', async (req, res) => {
     await fetch('http://localhost:9005/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'CommentCreated', id: commentId, content, postId: req.params.id }),
+        body: JSON.stringify({ event: { type: 'CommentCreated', id: commentId, content, postId: req.params.id, status: 'pending' } }),
     });
-    console.log("Event triggered by comment! The postId--->", req.params.id);
 
     res.send(newComment); // ✅ Fix: Send only the new comment
 });
 
 // receives event from event-bus
 app.post('/events', (req, res) => {
-    console.log("Event received: ", req.body.event);
+    const event = req.body.event;
+    console.log("Event received: ", event);
+
+    /**
+     * check if the status received from event is 'accepted' or 'rejected'
+     * if it is rejected, delete the comment, else send new event to the event-bus with the new event, {type: CommentUpdated}
+     */
+    if (event.status === 'rejected') {
+        event.content = 'Message has been deleted!';
+    }
+
+    fetch('http://localhost:9005/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'CommentUpdated', event })
+    });
+
+    res.send({});
 });
 
 

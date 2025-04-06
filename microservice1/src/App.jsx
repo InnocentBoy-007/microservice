@@ -65,11 +65,16 @@ function App() {
     if (!commentInputs[postId]) return; // Prevent empty comments
     setCommentLoading(true);
     try {
-      const response = await fetch(`http://localhost:9001/post/${postId}/comment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: commentInputs[postId], postId }),
-      });
+      console.log("Post ID--->", postId);
+
+      const response = await fetch(
+        `http://localhost:9001/post/${postId}/comment`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: commentInputs[postId], postId }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to create comment");
@@ -87,16 +92,14 @@ function App() {
       // ✅ Clear input for this post only
       setCommentInputs((prevInputs) => ({
         ...prevInputs,
-        [postId]: "", 
+        [postId]: "",
       }));
-
     } catch (error) {
       console.error("Error creating comment:", error);
     } finally {
       setCommentLoading(false);
     }
-};
-
+  };
 
   return (
     <>

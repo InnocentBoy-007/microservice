@@ -12,7 +12,7 @@ const posts = {};
 // global error handler
 app.use((err, req, res, next) => {
     console.log(err);
-})
+});
 
 app.post('/posts', async (req, res) => {
     const { title } = req.body;
@@ -25,17 +25,17 @@ app.post('/posts', async (req, res) => {
     await fetch('http://localhost:9005/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'PostCreated', postId, title })
+        body: JSON.stringify({ event: { type: 'PostCreated', postId, title } })
     });
     console.log("Event is sent to event-bus!");
 
-    res.send({ post: posts[postId] }); // response only the created post and not all the posts
+    return res.send({ post: posts[postId] }); // response only the created post and not all the posts
 });
 
 // endpoint to receive event from event-bus
 app.post('/events', (req, res) => {
     console.log('Event received: ', req.body.event);
-    res.send({});
+    return res.send({});
 });
 
 // getting posts (GET)
@@ -46,4 +46,3 @@ app.get('/posts', (req, res) => {
 app.listen(9000, () => {
     console.log("Server is listening at port 9000");
 });
-
