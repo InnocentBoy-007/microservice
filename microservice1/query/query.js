@@ -10,21 +10,26 @@ const newDB = {};
 
 // quering the incoming post along with it's comments
 app.post('/events', (req, res) => {
-    const incomingBody = req.body.event;
-    console.log("Incoming body--->", incomingBody);
+    const event = req.body.event;
+    console.log("Incoming body--->", event);
 
     // event received from post successfully
-    if (incomingBody.type === 'PostCreated') {
-        const { postId, title } = incomingBody;
+    if (event.type === 'PostCreated') {
+        const { postId, title } = event;
         newDB[postId] = { postId, title, comments: [] }; // keeping the comments empty for future use
     };
 
-    if (incomingBody.type === 'CommentCreated') {
-        const { id, content, postId } = incomingBody;
+    if (event.type === 'CommentUpdated') {
+        const { id, content, postId, status } = event;
+        // const newEvent = {id, content, postId} // assigning the properties to a new variable
 
         // check if the post exist first
         if (newDB[postId]) {
-            newDB[postId].comments.push({ commentId: id, content });
+            const comment = newDB[postId].comments.find(comment => comment.id === id);
+            if(comment) {
+                comment.status = status;
+                comment.content = content;
+            }
         } else {
             console.log("Post not found!");
         }
@@ -33,7 +38,8 @@ app.post('/events', (req, res) => {
     // new database after connecting post and comment
     // console.log("New DB:", JSON.stringify(newDB, null, 2));
 
-    res.send({});
+    // return the event to the frontend
+    res.send({event});
 });
 
 // route to fetch the queried post (+comments)

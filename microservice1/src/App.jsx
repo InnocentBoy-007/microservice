@@ -72,7 +72,7 @@ function App() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: commentInputs[postId], postId }),
+          body: JSON.stringify({ content: commentInputs[postId] }),
         }
       );
 
