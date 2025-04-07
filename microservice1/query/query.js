@@ -26,7 +26,7 @@ app.post('/events', (req, res) => {
         // check if the post exist first
         if (newDB[postId]) {
             const comment = newDB[postId].comments.find(comment => comment.id === id);
-            if(comment) {
+            if (comment) {
                 comment.status = status;
                 comment.content = content;
             }
@@ -39,13 +39,13 @@ app.post('/events', (req, res) => {
     // console.log("New DB:", JSON.stringify(newDB, null, 2));
 
     // return the event to the frontend
-    res.send({event});
+    res.send({ event });
 });
 
 // route to fetch the queried post (+comments)
 // http://localhost:9002/posts
 app.get('/posts', (req, res) => {
-    res.send(newDB);
+    res.send({ newDB });
 });
 
 app.listen(9002, () => {

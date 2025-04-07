@@ -22,14 +22,19 @@ app.post('/posts', async (req, res) => {
     posts[postId] = { postId, title };
 
     // sending an event to the event bus
-    await fetch('http://localhost:9005/events', {
+    const response = await fetch('http://localhost:9005/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ event: { type: 'PostCreated', postId, title } })
     });
     console.log("Event is sent to event-bus!");
 
-    return res.send({ post: posts[postId] }); // response only the created post and not all the posts
+    if (response.ok) {
+        const data = await response.json();
+        res.send((data.posted) ? {posted: true} : {posted: false});
+    } else {
+        console.log("An error occured while trying to send event to the event-bus!");
+    }
 });
 
 // endpoint to receive event from event-bus

@@ -1,6 +1,5 @@
 import express from 'express'
 import cors from 'cors'
-import axios from 'axios';
 
 const app = express();
 app.use(cors());
@@ -20,42 +19,42 @@ app.post('/events', (req, res) => {
     fetch("http://localhost:9000/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({event})
+        body: JSON.stringify({ event })
     }).catch((err) => {
         console.log(err.message);
     });
-    
+
 
     // comments server
     fetch("http://localhost:9001/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({event})
+        body: JSON.stringify({ event })
     }).catch((err) => {
         console.log(err.message);
     });
-    
+
 
     // query server
     fetch("http://localhost:9002/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({event})
+        body: JSON.stringify({ event })
     }).catch((err) => {
         console.log(err.message);
     });
-    
+
 
     // moderation server
     fetch("http://localhost:9003/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({event})
+        body: JSON.stringify({ event })
     }).catch((err) => {
         console.log(err.message);
     });
-    
 
+    res.send({ posted: true });
 });
 
 app.listen(9005, () => {
