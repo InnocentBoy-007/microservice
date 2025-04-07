@@ -17,25 +17,30 @@ app.use((err, req, res, next) => {
 app.post('/posts', async (req, res) => {
     const { title } = req.body;
 
-    // generating random number for post id
     const postId = randomBytes(4).toString('hex');
     posts[postId] = { postId, title };
 
-    // sending an event to the event bus
-    const response = await fetch('http://localhost:9005/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event: { type: 'PostCreated', postId, title } })
-    });
-    console.log("Event is sent to event-bus!");
+    try {
+        const response = await fetch('http://localhost:9005/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event: { type: 'PostCreated', postId, title } }) // I need to change 'event' to 'data' for more clearance
+        });
 
-    if (response.ok) {
-        const data = await response.json();
-        res.send((data.posted) ? {posted: true} : {posted: false});
-    } else {
-        console.log("An error occured while trying to send event to the event-bus!");
+        console.log("Event is sent to event-bus!");
+
+        if (response.ok) {
+            res.send({ posted: true });
+        } else {
+            console.log("An error occurred while trying to send event to the event-bus!");
+            res.send({ posted: false });
+        }
+    } catch (error) {
+        console.log("Error:", error.message);
+        res.status(500).json({ posted: false, message: "An unexpected error occured while trying to post a feed!" });
     }
 });
+
 
 // endpoint to receive event from event-bus
 app.post('/events', (req, res) => {

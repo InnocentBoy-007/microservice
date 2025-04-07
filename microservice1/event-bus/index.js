@@ -54,7 +54,7 @@ app.post('/events', (req, res) => {
         console.log(err.message);
     });
 
-    res.send({ posted: true });
+    res.send({});
 });
 
 app.listen(9005, () => {

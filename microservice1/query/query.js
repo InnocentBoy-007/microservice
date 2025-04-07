@@ -10,36 +10,41 @@ const newDB = {};
 
 // quering the incoming post along with it's comments
 app.post('/events', (req, res) => {
-    const event = req.body.event;
+    const { event } = req.body;
     console.log("Incoming body--->", event);
 
-    // event received from post successfully
-    if (event.type === 'PostCreated') {
-        const { postId, title } = event;
-        newDB[postId] = { postId, title, comments: [] }; // keeping the comments empty for future use
-    };
+    try {
+        // event received from post successfully
+        if (event.type === 'PostCreated') {
+            const { postId, title } = event;
+            newDB[postId] = { postId, title, comments: [] }; // keeping the comments empty for future use
+        };
 
-    if (event.type === 'CommentUpdated') {
-        const { id, content, postId, status } = event;
-        // const newEvent = {id, content, postId} // assigning the properties to a new variable
+        if (event.type === 'CommentUpdated') {
+            const { id, content, postId, status } = event;
+            // const newEvent = {id, content, postId} // assigning the properties to a new variable
 
-        // check if the post exist first
-        if (newDB[postId]) {
-            const comment = newDB[postId].comments.find(comment => comment.id === id);
-            if (comment) {
-                comment.status = status;
-                comment.content = content;
+            // check if the post exist first
+            if (newDB[postId]) {
+                const comment = newDB[postId].comments.find(comment => comment.id === id);
+                if (comment) {
+                    comment.status = status;
+                    comment.content = content;
+                }
+            } else {
+                console.log("Post not found!");
             }
-        } else {
-            console.log("Post not found!");
-        }
-    };
+        };
 
-    // new database after connecting post and comment
-    // console.log("New DB:", JSON.stringify(newDB, null, 2));
+        // new database after connecting post and comment
+        // console.log("New DB:", JSON.stringify(newDB, null, 2));
 
-    // return the event to the frontend
-    res.send({ event });
+        res.send({});
+    } catch (error) {
+        console.log(error);
+    }
+
+
 });
 
 // route to fetch the queried post (+comments)
