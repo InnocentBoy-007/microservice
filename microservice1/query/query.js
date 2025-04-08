@@ -17,7 +17,7 @@ app.post('/events', (req, res) => {
         // event received from post successfully
         if (event.type === 'PostCreated') {
             const { postId, title } = event;
-            newDB[postId] = { postId, title, comments: [] }; // keeping the comments empty for future use
+            newDB[postId] = { postId, title, comments: {} }; // keeping the comments empty for future use
         };
 
         if (event.type === 'CommentUpdated') {
@@ -26,14 +26,12 @@ app.post('/events', (req, res) => {
 
             // check if the post exist first
             if (newDB[postId]) {
-                const comment = newDB[postId].comments.find(comment => comment.id === id);
-                if (comment) {
-                    comment.status = status;
-                    comment.content = content;
-                }
+                newDB[postId].comments[id] = { id, content, postId, status }; // if the post exist, add the comment
             } else {
                 console.log("Post not found!");
             }
+
+            console.log("New DB--->", newDB);
         };
 
         // new database after connecting post and comment
@@ -43,8 +41,6 @@ app.post('/events', (req, res) => {
     } catch (error) {
         console.log(error);
     }
-
-
 });
 
 // route to fetch the queried post (+comments)

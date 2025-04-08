@@ -22,47 +22,54 @@ app.post('/post/:id/comment', async (req, res) => {
     console.log("Content of comment-->", content);
     console.log("PostId--->", postId);
 
-    commentsByPostId[postId] = [
-        ...(commentsByPostId[postId] || []),
-        { id: commentId, content }
-    ];
+    try {
+        commentsByPostId[postId] = [
+            ...(commentsByPostId[postId] || []),
+            { id: commentId, content }
+        ];
 
-    console.log("Successfully posted a comment!");
+        console.log("Successfully posted a comment!");
 
-    // Send event to event-bus
-    await fetch('http://localhost:9005/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            event: {
-                type: 'CommentCreated',
-                id: commentId,
-                content,
-                postId,
-                status: 'pending'
-            }
-        }),
-    });
+        // Send event to event-bus
+        await fetch('http://localhost:9005/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                event: {
+                    type: 'CommentCreated',
+                    id: commentId,
+                    content,
+                    postId,
+                    status: 'pending'
+                }
+            }),
+        });
 
-    res.send(commentsByPostId[postId]);
+        res.json({ message: "Your comment is filtering..." });
+    } catch (error) {
+        res.status(500).json({ message: "An unexpected error occured while trying to post comment!" });
+    }
 });
 
 
 // receives event from event-bus
-app.post('/events', async(req, res) => {
+app.post('/events', async (req, res) => {
     const incoming_body = req.body.event;
-    if(incoming_body.type === 'CommentCreated') {
+
+    // receive the event type 'CommentModerated' emitted from event-bus
+    if (incoming_body.type === 'CommentModerated') {
         const { id, postId, status, content } = incoming_body;
         console.log("Event received: ", incoming_body);
-    
+
         /**
          * check if the status received from event is 'accepted' or 'rejected'
          * if it is rejected, delete the comment, else send new event to the event-bus with the new event, {type: CommentUpdated}
          */
         const comments = commentsByPostId[postId];
-        const comment = comments.find(comment =>  comment.id === id); // return the comment that has the same id with the incoming comment id
+        const comment = comments.find(comment => comment.id === id); // return the comment that has the same id with the incoming comment id
         comment.status = status; // update the existing status with the incoming status
-    
+
+        // after the comment is updated, sent the new comment to the event-bus
         await fetch('http://localhost:9005/events', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
