@@ -8,11 +8,7 @@ app.use(express.json());
 // after the newDB is created which contains both the post and the comment, response the newDB to the frontend
 const newDB = {};
 
-// quering the incoming post along with it's comments
-app.post('/events', (req, res) => {
-    const { event } = req.body;
-    console.log("Incoming body--->", event);
-
+const handleEvent = (event) => {
     try {
         // event received from post successfully
         if (event.type === 'PostCreated') {
@@ -33,14 +29,19 @@ app.post('/events', (req, res) => {
 
             console.log("New DB--->", newDB);
         };
-
-        // new database after connecting post and comment
-        // console.log("New DB:", JSON.stringify(newDB, null, 2));
-
-        res.send({});
     } catch (error) {
         console.log(error);
     }
+}
+
+// quering the incoming post along with it's comments
+app.post('/events', (req, res) => {
+    const { event } = req.body;
+    console.log("Incoming body--->", event);
+
+    handleEvent(event);
+
+    res.send({});
 });
 
 // route to fetch the queried post (+comments)
@@ -49,6 +50,22 @@ app.get('/posts', (req, res) => {
     res.send({ newDB });
 });
 
-app.listen(9002, () => {
+app.listen(9002, async () => {
     console.log("Query server is running on port 9002");
-})
+
+    const response = await fetch('http://localhost:9005/events', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+
+        for (let event of data) {
+            console.log("Processing event: ", event.type);
+            handleEvent(event);
+        }
+    } else {
+        console.log("There is an unexpected error while trying to fetch stored events!");
+    }
+});
